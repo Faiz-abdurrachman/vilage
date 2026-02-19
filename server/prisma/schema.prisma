@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  ADMIN
+  KADES
+  SEKDES
+  OPERATOR
+}
+
+enum JenisKelamin {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+enum Agama {
+  ISLAM
+  KRISTEN
+  KATOLIK
+  HINDU
+  BUDDHA
+  KONGHUCU
+}
+
+enum StatusPerkawinan {
+  BELUM_KAWIN
+  KAWIN
+  CERAI_HIDUP
+  CERAI_MATI
+}
+
+enum StatusDalamKK {
+  KEPALA_KELUARGA
+  ISTRI
+  ANAK
+  FAMILI_LAIN
+  LAINNYA
+}
+
+enum StatusPenduduk {
+  AKTIF
+  PINDAH
+  MENINGGAL
+}
+
+enum JenisMutasi {
+  LAHIR
+  MENINGGAL
+  PINDAH_MASUK
+  PINDAH_KELUAR
+}
+
+enum JenisSurat {
+  SK_DOMISILI
+  SKTM
+  SK_USAHA
+  SK_KELAHIRAN
+  SK_KEMATIAN
+  SURAT_PENGANTAR
+}
+
+enum StatusSurat {
+  DRAFT
+  MENUNGGU
+  DISETUJUI
+  DITOLAK
+}
+
+enum GolonganDarah {
+  A
+  B
+  AB
+  O
+  TIDAK_TAHU
+}
+
+enum Pendidikan {
+  TIDAK_SEKOLAH
+  SD
+  SMP
+  SMA
+  D1
+  D2
+  D3
+  S1
+  S2
+  S3
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  password    String
+  namaLengkap String   @map("nama_lengkap")
+  role        Role     @default(OPERATOR)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  mutasiDibuat   Mutasi[] @relation("MutasiCreator")
+  suratDibuat    Surat[]  @relation("SuratCreator")
+  suratDisetujui Surat[]  @relation("SuratApprover")
+
+  @@map("users")
+}
+
+model DesaProfil {
+  id            String  @id @default(cuid())
+  namaDesa      String  @map("nama_desa")
+  kodeDesa      String  @map("kode_desa")
+  kecamatan     String
+  kabupatenKota String  @map("kabupaten_kota")
+  provinsi      String
+  alamatKantor  String  @map("alamat_kantor")
+  kodePos       String? @map("kode_pos")
+  telepon       String?
+  namaKades     String  @map("nama_kades")
+  nipKades      String? @map("nip_kades")
+  logoPath      String? @map("logo_path")
+
+  @@map("desa_profil")
+}
+
+// KartuKeluarga stores kepalaKeluargaId as nullable String (FK to penduduk.id)
+// kepalaKeluarga relation is set AFTER creating penduduk records due to circular dependency
+model KartuKeluarga {
+  id               String   @id @default(cuid())
+  noKk             String   @unique @map("no_kk")
+  alamat           String
+  rt               String
+  rw               String
+  dusun            String
+  kodePos          String?  @map("kode_pos")
+  kepalaKeluargaId String?  @map("kepala_keluarga_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  anggota Penduduk[] @relation("AnggotaKK")
+
+  @@map("kartu_keluarga")
+}
+
+model Penduduk {
+  id                 String           @id @default(cuid())
+  nik                String           @unique
+  namaLengkap        String           @map("nama_lengkap")
+  tempatLahir        String           @map("tempat_lahir")
+  tanggalLahir       DateTime         @map("tanggal_lahir")
+  jenisKelamin       JenisKelamin     @map("jenis_kelamin")
+  alamat             String
+  rt                 String
+  rw                 String
+  agama              Agama
+  statusPerkawinan   StatusPerkawinan @map("status_perkawinan")
+  pekerjaan          String
+  pendidikanTerakhir Pendidikan       @map("pendidikan_terakhir")
+  kewarganegaraan    String           @default("WNI")
+  golonganDarah      GolonganDarah?   @map("golongan_darah")
+  namaAyah           String           @map("nama_ayah")
+  namaIbu            String           @map("nama_ibu")
+  statusDalamKK      StatusDalamKK    @map("status_dalam_kk")
+  statusPenduduk     StatusPenduduk   @default(AKTIF) @map("status_penduduk")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  // Foreign Key to KartuKeluarga
+  kkId String? @map("kk_id")
+
+  // Relations
+  kartuKeluarga KartuKeluarga? @relation("AnggotaKK", fields: [kkId], references: [id])
+  mutasi        Mutasi[]
+  surat         Surat[]
+
+  @@map("penduduk")
+}
+
+model Mutasi {
+  id            String      @id @default(cuid())
+  pendudukId    String      @map("penduduk_id")
+  jenisMutasi   JenisMutasi @map("jenis_mutasi")
+  tanggalMutasi DateTime    @map("tanggal_mutasi")
+  keterangan    String?
+  desaTujuan    String?     @map("desa_tujuan")
+  desaAsal      String?     @map("desa_asal")
+  createdById   String      @map("created_by")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  // Relations
+  penduduk  Penduduk @relation(fields: [pendudukId], references: [id])
+  createdBy User     @relation("MutasiCreator", fields: [createdById], references: [id])
+
+  @@map("mutasi")
+}
+
+model Surat {
+  id             String      @id @default(cuid())
+  nomorSurat     String?     @map("nomor_surat")
+  jenisSurat     JenisSurat  @map("jenis_surat")
+  pendudukId     String      @map("penduduk_id")
+  perihal        String?
+  dataTambahan   Json?       @map("data_tambahan") @db.JsonB
+  status         StatusSurat @default(DRAFT)
+  createdById    String      @map("created_by")
+  approvedById   String?     @map("approved_by")
+  approvedAt     DateTime?   @map("approved_at")
+  rejectedReason String?     @map("rejected_reason")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  penduduk   Penduduk @relation(fields: [pendudukId], references: [id])
+  createdBy  User     @relation("SuratCreator", fields: [createdById], references: [id])
+  approvedBy User?    @relation("SuratApprover", fields: [approvedById], references: [id])
+
+  @@map("surat")
+}
