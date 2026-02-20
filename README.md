@@ -79,7 +79,7 @@ cp .env.example .env
 Edit `server/.env`:
 ```env
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/sidesa
-JWT_SECRET=sidesa-secret-key-2026-very-secure-motoboi-besar
+JWT_SECRET=sidesa-secret-key-2026-very-secure-motoboi-kecil
 JWT_EXPIRES_IN=24h
 PORT=5000
 NODE_ENV=development

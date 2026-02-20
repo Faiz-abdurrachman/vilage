@@ -6,7 +6,7 @@ import {
   Briefcase, Baby, Feather, Send, ArrowRight,
 } from 'lucide-react';
 import {
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from 'recharts';
 
@@ -589,7 +589,9 @@ function LandingPage() {
                     <XAxis dataKey="kelompok" tick={{ fontSize: 8.5, fill: '#64748b' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="jumlah" name="Penduduk" fill="#8b5cf6" radius={[4, 4, 0, 0]} animationBegin={0} animationDuration={1200} />
+                    <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                    <Bar dataKey="lakiLaki" name="Laki-laki" fill="#3b82f6" radius={[4, 4, 0, 0]} animationBegin={0} animationDuration={1200} />
+                    <Bar dataKey="perempuan" name="Perempuan" fill="#f472b6" radius={[4, 4, 0, 0]} animationBegin={0} animationDuration={1200} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

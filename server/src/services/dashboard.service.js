@@ -47,6 +47,7 @@ async function getDemografi() {
       pekerjaan: true,
       pendidikanTerakhir: true,
       tanggalLahir: true,
+      jenisKelamin: true,
       kartuKeluarga: { select: { dusun: true } },
     },
   });
@@ -85,30 +86,39 @@ async function getDemografi() {
     .map(([dusun, jumlah]) => ({ dusun, jumlah }))
     .sort((a, b) => a.dusun.localeCompare(b.dusun));
 
-  // Per kelompok umur
+  // Per kelompok umur (grouped by gender)
   const today = new Date();
   const kelompokUmurMap = {
-    'Balita (0-5)': 0,
-    'Anak (6-12)': 0,
-    'Remaja (13-17)': 0,
-    'Pemuda (18-25)': 0,
-    'Dewasa (26-40)': 0,
-    'Paruh Baya (41-60)': 0,
-    'Lansia (60+)': 0,
+    'Balita (0-5)': { lakiLaki: 0, perempuan: 0 },
+    'Anak (6-12)': { lakiLaki: 0, perempuan: 0 },
+    'Remaja (13-17)': { lakiLaki: 0, perempuan: 0 },
+    'Pemuda (18-25)': { lakiLaki: 0, perempuan: 0 },
+    'Dewasa (26-40)': { lakiLaki: 0, perempuan: 0 },
+    'Paruh Baya (41-60)': { lakiLaki: 0, perempuan: 0 },
+    'Lansia (60+)': { lakiLaki: 0, perempuan: 0 },
   };
 
   pendudukAktif.forEach((p) => {
     const age = today.getFullYear() - new Date(p.tanggalLahir).getFullYear();
-    if (age <= 5) kelompokUmurMap['Balita (0-5)']++;
-    else if (age <= 12) kelompokUmurMap['Anak (6-12)']++;
-    else if (age <= 17) kelompokUmurMap['Remaja (13-17)']++;
-    else if (age <= 25) kelompokUmurMap['Pemuda (18-25)']++;
-    else if (age <= 40) kelompokUmurMap['Dewasa (26-40)']++;
-    else if (age <= 60) kelompokUmurMap['Paruh Baya (41-60)']++;
-    else kelompokUmurMap['Lansia (60+)']++;
+    let key;
+    if (age <= 5) key = 'Balita (0-5)';
+    else if (age <= 12) key = 'Anak (6-12)';
+    else if (age <= 17) key = 'Remaja (13-17)';
+    else if (age <= 25) key = 'Pemuda (18-25)';
+    else if (age <= 40) key = 'Dewasa (26-40)';
+    else if (age <= 60) key = 'Paruh Baya (41-60)';
+    else key = 'Lansia (60+)';
+
+    if (p.jenisKelamin === 'LAKI_LAKI') kelompokUmurMap[key].lakiLaki++;
+    else kelompokUmurMap[key].perempuan++;
   });
 
-  const perKelompokUmur = Object.entries(kelompokUmurMap).map(([kelompok, jumlah]) => ({ kelompok, jumlah }));
+  const perKelompokUmur = Object.entries(kelompokUmurMap).map(([kelompok, d]) => ({
+    kelompok,
+    lakiLaki: d.lakiLaki,
+    perempuan: d.perempuan,
+    total: d.lakiLaki + d.perempuan,
+  }));
 
   return { perAgama, perPekerjaan, perPendidikan, perDusun, perKelompokUmur };
 }
