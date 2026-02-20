@@ -158,6 +158,39 @@
   transform: translateY(-2px);
 }
 
+/* Smooth scroll with navbar offset */
+html {
+  scroll-padding-top: 72px;
+}
+
+/* Hero animated gradient */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.hero-gradient {
+  background: linear-gradient(-45deg, #0f172a, #1e1b4b, #1e3a8a, #0c4a6e);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Particle float */
+@keyframes particleFloat {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.08; }
+  50% { transform: translateY(-28px) translateX(16px); opacity: 0.25; }
+}
+
+/* Stagger fade-in from below */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.fade-in-up {
+  animation: fadeInUp 0.65s ease forwards;
+  opacity: 0;
+}
+
 /* Print styles */
 @media print {
   .no-print {
