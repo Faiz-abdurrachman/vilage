@@ -21,21 +21,21 @@ Desa Motoboi Besar • Kecamatan Kotamobagu Selatan • Kota Kotamobagu • Sula
 
 ---
 
-## 📋 Tentang
+##  Tentang
 
 **SIDESA** (Sistem Informasi Kependudukan Desa) adalah aplikasi web full-stack untuk mengelola data kependudukan desa secara digital. Sistem ini mencakup manajemen penduduk, kartu keluarga, mutasi penduduk, penerbitan surat keterangan, serta dashboard statistik demografi desa.
 
 Dibangun dengan arsitektur modern menggunakan React.js, Express.js, dan PostgreSQL, SIDESA menyediakan antarmuka yang intuitif untuk perangkat desa dalam melayani administrasi kependudukan secara efisien.
 
-### 🎯 Latar Belakang
+###  Latar Belakang
 
 Proyek ini dikembangkan sebagai tugas mata kuliah yang mensimulasikan kebutuhan nyata administrasi desa di Indonesia, menggunakan data realistis Desa Motoboi Besar, Kota Kotamobagu, Sulawesi Utara.
 
 ---
 
-## ✨ Fitur Utama
+##  Fitur Utama
 
-### 🌐 Landing Page Publik
+###  Landing Page Publik
 - Hero section dengan statistik real-time
 - Profil desa & sambutan kepala desa
 - Statistik demografi interaktif (charts)
@@ -44,44 +44,44 @@ Proyek ini dikembangkan sebagai tugas mata kuliah yang mensimulasikan kebutuhan 
 - Layanan administrasi & alur pengurusan
 - FAQ, peta lokasi, dan form kontak WhatsApp
 
-### 📊 Dashboard Admin
+###  Dashboard Admin
 - Statistik ringkasan (total penduduk, KK, mutasi, surat)
 - 6 chart demografi interaktif (Recharts)
 - Data real-time dari database
 
-### 👥 Manajemen Penduduk
+###  Manajemen Penduduk
 - CRUD data penduduk lengkap (45+ field)
 - Pencarian dan filter multi-kriteria
 - Export data ke Excel
 - Validasi NIK 16 digit
 - Soft delete (status-based)
 
-### 🏠 Kartu Keluarga
+###  Kartu Keluarga
 - CRUD Kartu Keluarga
 - Manajemen anggota keluarga
 - Penetapan kepala keluarga
 - Relasi penduduk ↔ KK
 
-### 🔄 Mutasi Penduduk
+###  Mutasi Penduduk
 - Pencatatan kelahiran → auto-create penduduk
 - Pencatatan kematian → auto-update status
 - Pencatatan pindah masuk/keluar
 - Semua operasi dalam database transaction
 
-### 📄 Surat Keterangan
+###  Surat Keterangan
 - 6 jenis surat: SK Domisili, SKTM, SK Usaha, SK Kelahiran, SK Kematian, Surat Pengantar
 - Workflow approval: Draft → Menunggu → Disetujui/Ditolak
 - Auto-generate nomor surat (format: 001/SKD/MB/II/2026)
 - Generate PDF surat resmi dengan kop surat
 - Hanya Kepala Desa yang bisa menyetujui
 
-### 🔐 Autentikasi & Otorisasi
+###  Autentikasi & Otorisasi
 - JWT-based authentication
 - Role-Based Access Control (RBAC)
 - 4 role: Admin, Kepala Desa, Sekretaris Desa, Operator
 - Permission matrix per fitur
 
-### 📱 UI/UX
+###  UI/UX
 - Responsive design (desktop, tablet, mobile)
 - Modern government-style UI
 - Animasi smooth & micro-interactions
@@ -90,7 +90,7 @@ Proyek ini dikembangkan sebagai tugas mata kuliah yang mensimulasikan kebutuhan 
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 | Layer | Teknologi |
 |-------|-----------|
@@ -108,7 +108,7 @@ Proyek ini dikembangkan sebagai tugas mata kuliah yang mensimulasikan kebutuhan 
 
 ---
 
-## 📁 Struktur Folder
+##  Struktur Folder
 
 ```
 sidesa/
@@ -159,7 +159,7 @@ sidesa/
 
 ---
 
-## 🚀 Instalasi & Menjalankan Lokal
+##  Instalasi & Menjalankan Lokal
 
 ### Prasyarat
 
@@ -235,7 +235,7 @@ Frontend berjalan di `http://localhost:5174`
 
 ---
 
-## 🌍 Deployment
+##  Deployment
 
 ### Arsitektur Deployment
 
@@ -293,7 +293,7 @@ Frontend berjalan di `http://localhost:5174`
 
 ---
 
-## 📊 Database Schema
+##  Database Schema
 
 ```
 ┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
@@ -339,7 +339,7 @@ Frontend berjalan di `http://localhost:5174`
 
 ---
 
-## 📡 API Endpoints
+##  API Endpoints
 
 ### Public (Tanpa Auth)
 | Method | Endpoint | Deskripsi |
@@ -410,7 +410,7 @@ Frontend berjalan di `http://localhost:5174`
 
 ---
 
-## 🔐 Role & Permission Matrix
+##  Role & Permission Matrix
 
 | Fitur | Admin | Kades | Sekdes | Operator |
 |-------|:-----:|:-----:|:------:|:--------:|
@@ -429,7 +429,7 @@ Frontend berjalan di `http://localhost:5174`
 
 ---
 
-## 🧪 Data Contoh
+##  Data Contoh
 
 Sistem dilengkapi dengan seed data realistis:
 
@@ -443,7 +443,7 @@ Sistem dilengkapi dengan seed data realistis:
 
 ---
 
-## 🧰 Development
+##  Development
 
 ### Perintah Berguna
 
@@ -475,17 +475,10 @@ npm run preview                # Preview production build lokal
 | `CLIENT_URL` | server | Frontend URL (untuk CORS) |
 | `VITE_API_URL` | client | Backend API base URL |
 
----
-
-## 📄 Lisensi
-
-Proyek ini dibuat untuk keperluan edukasi (tugas kuliah).
-
-MIT License — bebas digunakan, dimodifikasi, dan didistribusikan.
 
 ---
 
-## 🙏 Credits
+##  Credits
 
 - **Framework**: React, Express, PostgreSQL, Prisma
 - **UI**: TailwindCSS, shadcn/ui, Radix UI, Lucide Icons
@@ -498,8 +491,5 @@ MIT License — bebas digunakan, dimodifikasi, dan didistribusikan.
 
 <div align="center">
 
-**Dibuat dengan ❤️ untuk Desa Motoboi Besar**
-
-Tugas Mata Kuliah — 2026
 
 </div>
