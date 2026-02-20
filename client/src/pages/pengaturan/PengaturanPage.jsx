@@ -15,15 +15,16 @@ import { useToast } from '@/hooks/use-toast';
 
 const schema = z.object({
   namaDesa: z.string().min(1, 'Wajib diisi'),
-  namaKecamatan: z.string().min(1, 'Wajib diisi'),
-  namaKabupaten: z.string().min(1, 'Wajib diisi'),
-  namaProvinsi: z.string().min(1, 'Wajib diisi'),
+  kecamatan: z.string().min(1, 'Wajib diisi'),
+  kabupatenKota: z.string().min(1, 'Wajib diisi'),
+  provinsi: z.string().min(1, 'Wajib diisi'),
   kodePos: z.string().optional(),
   kodeDesa: z.string().optional(),
   alamatKantor: z.string().optional(),
-  noTelepon: z.string().optional(),
+  telepon: z.string().optional(),
   email: z.string().email('Format email tidak valid').optional().or(z.literal('')),
   namaKades: z.string().optional(),
+  nipKades: z.string().optional(),
   namaSekdes: z.string().optional(),
   visiDesa: z.string().optional(),
   misiDesa: z.string().optional(),
@@ -48,19 +49,22 @@ function PengaturanPage() {
     resolver: zodResolver(schema),
   });
 
+  useEffect(() => { document.title = 'Pengaturan | SIDESA'; }, []);
+
   useEffect(() => {
     if (profil) {
       reset({
         namaDesa: profil.namaDesa || '',
-        namaKecamatan: profil.namaKecamatan || '',
-        namaKabupaten: profil.namaKabupaten || '',
-        namaProvinsi: profil.namaProvinsi || '',
+        kecamatan: profil.kecamatan || '',
+        kabupatenKota: profil.kabupatenKota || '',
+        provinsi: profil.provinsi || '',
         kodePos: profil.kodePos || '',
         kodeDesa: profil.kodeDesa || '',
         alamatKantor: profil.alamatKantor || '',
-        noTelepon: profil.noTelepon || '',
+        telepon: profil.telepon || '',
         email: profil.email || '',
         namaKades: profil.namaKades || '',
+        nipKades: profil.nipKades || '',
         namaSekdes: profil.namaSekdes || '',
         visiDesa: profil.visiDesa || '',
         misiDesa: profil.misiDesa || '',
@@ -97,14 +101,14 @@ function PengaturanPage() {
             <FormField label="Kode Desa" error={errors.kodeDesa?.message}>
               <Input placeholder="Contoh: MB" {...register('kodeDesa')} />
             </FormField>
-            <FormField label="Kecamatan" error={errors.namaKecamatan?.message} required>
-              <Input {...register('namaKecamatan')} />
+            <FormField label="Kecamatan" error={errors.kecamatan?.message} required>
+              <Input {...register('kecamatan')} />
             </FormField>
-            <FormField label="Kabupaten/Kota" error={errors.namaKabupaten?.message} required>
-              <Input {...register('namaKabupaten')} />
+            <FormField label="Kabupaten/Kota" error={errors.kabupatenKota?.message} required>
+              <Input {...register('kabupatenKota')} />
             </FormField>
-            <FormField label="Provinsi" error={errors.namaProvinsi?.message} required>
-              <Input {...register('namaProvinsi')} />
+            <FormField label="Provinsi" error={errors.provinsi?.message} required>
+              <Input {...register('provinsi')} />
             </FormField>
             <FormField label="Kode Pos" error={errors.kodePos?.message}>
               <Input {...register('kodePos')} />
@@ -114,8 +118,8 @@ function PengaturanPage() {
                 <Input {...register('alamatKantor')} />
               </FormField>
             </div>
-            <FormField label="Nomor Telepon" error={errors.noTelepon?.message}>
-              <Input {...register('noTelepon')} />
+            <FormField label="Nomor Telepon" error={errors.telepon?.message}>
+              <Input {...register('telepon')} />
             </FormField>
             <FormField label="Email" error={errors.email?.message}>
               <Input type="email" {...register('email')} />
@@ -128,6 +132,9 @@ function PengaturanPage() {
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField label="Nama Kepala Desa" error={errors.namaKades?.message}>
               <Input {...register('namaKades')} />
+            </FormField>
+            <FormField label="NIP Kepala Desa" error={errors.nipKades?.message}>
+              <Input {...register('nipKades')} />
             </FormField>
             <FormField label="Nama Sekretaris Desa" error={errors.namaSekdes?.message}>
               <Input {...register('namaSekdes')} />

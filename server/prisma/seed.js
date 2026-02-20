@@ -11,12 +11,12 @@ async function main() {
   // ==========================================
   const desaProfil = await prisma.desaProfil.create({
     data: {
-      namaDesa: 'Motoboi Besar',
+      namaDesa: 'Motoboi Kecil',
       kodeDesa: 'MB',
       kecamatan: 'Kotamobagu Selatan',
       kabupatenKota: 'Kota Kotamobagu',
       provinsi: 'Sulawesi Utara',
-      alamatKantor: 'Jl. Trans Sulawesi, Desa Motoboi Besar',
+      alamatKantor: 'Jl. Trans Sulawesi, Desa Motoboi Kecil',
       kodePos: '95716',
       telepon: '(0434) 123456',
       namaKades: 'Ibrahim Mokodompit',

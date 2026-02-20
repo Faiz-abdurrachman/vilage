@@ -73,6 +73,10 @@ function PendudukFormPage() {
   const createMutation = useCreatePenduduk();
   const updateMutation = useUpdatePenduduk();
 
+  useEffect(() => {
+    document.title = isEdit ? 'Edit Data Penduduk | SIDESA' : 'Tambah Penduduk | SIDESA';
+  }, [isEdit]);
+
   const { register, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm({
     resolver: zodResolver(isEdit ? schema.partial() : schema),
     defaultValues: { kewarganegaraan: 'WNI' },
@@ -229,9 +233,9 @@ function PendudukFormPage() {
             />
             <SelectField
               label="Kartu Keluarga"
-              value={watch('kkId') || ''} error={errors.kkId?.message}
-              onValueChange={(v) => setValue('kkId', v)}
-              options={[{ value: '', label: 'Tidak ada (pisahkan)' }, ...kkOptions]}
+              value={watch('kkId') || '__none__'} error={errors.kkId?.message}
+              onValueChange={(v) => setValue('kkId', v === '__none__' ? null : v)}
+              options={[{ value: '__none__', label: 'Tidak ada (pisahkan)' }, ...kkOptions]}
               placeholder="Pilih KK"
             />
           </CardContent>

@@ -96,32 +96,49 @@ async function exportExcel(req, res, next) {
     sheet.columns = [
       { header: 'No', key: 'no', width: 5 },
       { header: 'Nomor Surat', key: 'nomorSurat', width: 25 },
-      { header: 'Jenis Surat', key: 'jenisSurat', width: 20 },
+      { header: 'Jenis Surat', key: 'jenisSurat', width: 22 },
       { header: 'Nama Penduduk', key: 'namaLengkap', width: 30 },
       { header: 'NIK', key: 'nik', width: 20 },
+      { header: 'Perihal', key: 'perihal', width: 30 },
       { header: 'Status', key: 'status', width: 12 },
       { header: 'Dibuat Oleh', key: 'createdBy', width: 25 },
-      { header: 'Disetujui Oleh', key: 'approvedBy', width: 25 },
       { header: 'Tanggal Dibuat', key: 'createdAt', width: 18 },
+      { header: 'Disetujui Oleh', key: 'approvedBy', width: 25 },
       { header: 'Tanggal Disetujui', key: 'approvedAt', width: 18 },
     ];
 
-    sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
+    // Style header
+    const headerRow = sheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
+    headerRow.alignment = { vertical: 'middle', wrapText: true };
+    headerRow.height = 30;
+
+    // Freeze header row
+    sheet.views = [{ state: 'frozen', ySplit: 1 }];
 
     suratList.forEach((s, index) => {
-      sheet.addRow({
+      const row = sheet.addRow({
         no: index + 1,
         nomorSurat: s.nomorSurat || '-',
         jenisSurat: s.jenisSurat.replace(/_/g, ' '),
         namaLengkap: s.penduduk?.namaLengkap || '-',
         nik: s.penduduk?.nik || '-',
+        perihal: s.perihal || '-',
         status: s.status,
         createdBy: s.createdBy?.namaLengkap || '-',
-        approvedBy: s.approvedBy?.namaLengkap || '-',
         createdAt: new Date(s.createdAt).toLocaleDateString('id-ID'),
+        approvedBy: s.approvedBy?.namaLengkap || '-',
         approvedAt: s.approvedAt ? new Date(s.approvedAt).toLocaleDateString('id-ID') : '-',
       });
+
+      // Alternating row color
+      if (index % 2 === 1) {
+        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+      }
+      row.font = { size: 10 };
+      // NIK as text
+      row.getCell('nik').numFmt = '@';
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

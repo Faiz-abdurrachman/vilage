@@ -16,15 +16,15 @@ function generateSuratPDF(surat, penduduk, desaProfil) {
     // ================================================
     // KOP SURAT
     // ================================================
-    doc.fontSize(12).font('Helvetica-Bold')
+    doc.fontSize(14).font('Helvetica-Bold')
       .text('PEMERINTAH KOTA KOTAMOBAGU', { align: 'center' });
-    doc.fontSize(11)
+    doc.fontSize(12)
       .text('KECAMATAN KOTAMOBAGU SELATAN', { align: 'center' });
-    doc.fontSize(14)
+    doc.fontSize(16)
       .text(`DESA ${(desaProfil?.namaDesa || 'MOTOBOI BESAR').toUpperCase()}`, { align: 'center' });
     doc.fontSize(9).font('Helvetica')
-      .text(`Alamat: ${desaProfil?.alamatKantor || 'Jl. Trans Sulawesi, Desa Motoboi Besar'}, Kode Pos: ${desaProfil?.kodePos || '95716'}`, { align: 'center' });
-    doc.text(`Telp: ${desaProfil?.telepon || '(0434) 123456'}`, { align: 'center' });
+      .text(`${desaProfil?.alamatKantor || 'Jl. Trans Sulawesi, Desa Motoboi Kecil'}, Kode Pos ${desaProfil?.kodePos || '95716'}`, { align: 'center' });
+    doc.text(`Telepon: ${desaProfil?.telepon || '(0434) 123456'}${desaProfil?.email ? '  Email: ' + desaProfil.email : ''}`, { align: 'center' });
 
     // Garis double
     doc.moveDown(0.5);
@@ -52,7 +52,7 @@ function generateSuratPDF(surat, penduduk, desaProfil) {
     doc.moveDown(1.5);
     doc.fontSize(11).font('Helvetica');
 
-    const namaDesa = desaProfil?.namaDesa || 'Motoboi Besar';
+    const namaDesa = desaProfil?.namaDesa || 'Motoboi Kecil';
     const kecamatan = desaProfil?.kecamatan || 'Kotamobagu Selatan';
     const kabupaten = desaProfil?.kabupatenKota || 'Kota Kotamobagu';
     const namaKades = desaProfil?.namaKades || 'Ibrahim Mokodompit';

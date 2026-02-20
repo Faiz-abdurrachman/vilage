@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Eye } from 'lucide-react';
 import { useMutasiList } from '@/hooks/useMutasi';
@@ -27,6 +27,8 @@ const JENIS_COLOR = {
 function MutasiListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => { document.title = 'Mutasi Penduduk | SIDESA'; }, []);
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');

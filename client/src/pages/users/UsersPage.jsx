@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -125,6 +125,8 @@ function UserDialog({ open, onClose, editUser }) {
 function UsersPage() {
   const { toast } = useToast();
   const [showDialog, setShowDialog] = useState(false);
+
+  useEffect(() => { document.title = 'Manajemen Pengguna | SIDESA'; }, []);
   const [editUser, setEditUser] = useState(null);
 
   const { data: users, isLoading } = useUserList();

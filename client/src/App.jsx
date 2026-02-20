@@ -24,6 +24,7 @@ import UsersPage from '@/pages/users/UsersPage';
 import PengaturanPage from '@/pages/pengaturan/PengaturanPage';
 import ProfilPage from '@/pages/profil/ProfilPage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import LandingPage from '@/pages/landing/LandingPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,8 +42,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>

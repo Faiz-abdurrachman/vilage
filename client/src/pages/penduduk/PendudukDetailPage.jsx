@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Pencil, User, Home, BookOpen, Users } from 'lucide-react';
 import { usePendudukDetail } from '@/hooks/usePenduduk';
@@ -38,6 +39,10 @@ function PendudukDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: penduduk, isLoading } = usePendudukDetail(id);
+
+  useEffect(() => {
+    document.title = penduduk ? `${penduduk.namaLengkap} | SIDESA` : 'Detail Penduduk | SIDESA';
+  }, [penduduk]);
 
   if (isLoading) return <PageLoader />;
   if (!penduduk) return (

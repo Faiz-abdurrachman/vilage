@@ -1,6 +1,6 @@
 # SIDESA — Sistem Informasi Kependudukan Desa
 
-Aplikasi web untuk pengelolaan data kependudukan Desa Motoboi Besar, Kecamatan Kotamobagu Selatan, Kota Kotamobagu, Sulawesi Utara.
+Aplikasi web untuk pengelolaan data kependudukan Desa Motoboi Kecil, Kecamatan Kotamobagu Selatan, Kota Kotamobagu, Sulawesi Utara.
 
 ## Fitur Utama
 

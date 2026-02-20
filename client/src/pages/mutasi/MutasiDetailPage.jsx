@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useMutasiDetail } from '@/hooks/useMutasi';
@@ -35,6 +36,10 @@ function MutasiDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: mutasi, isLoading } = useMutasiDetail(id);
+
+  useEffect(() => {
+    document.title = mutasi ? `${JENIS_LABEL[mutasi.jenisMutasi] || 'Mutasi'} | SIDESA` : 'Detail Mutasi | SIDESA';
+  }, [mutasi]);
 
   if (isLoading) return <PageLoader />;
   if (!mutasi) return <div className="text-center py-16 text-slate-500">Data mutasi tidak ditemukan.</div>;
@@ -92,14 +97,15 @@ function MutasiDetailPage() {
           </Card>
         )}
 
-        {(mutasi.alamatTujuan || mutasi.alasanPindah) && (
+        {(mutasi.desaTujuan || mutasi.desaAsal) && (
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Informasi Pindah</CardTitle>
             </CardHeader>
             <CardContent>
-              <InfoRow label="Alamat Tujuan" value={mutasi.alamatTujuan} />
-              <InfoRow label="Alasan Pindah" value={mutasi.alasanPindah} />
+              {mutasi.desaTujuan && <InfoRow label="Desa Tujuan" value={mutasi.desaTujuan} />}
+              {mutasi.desaAsal && <InfoRow label="Desa Asal" value={mutasi.desaAsal} />}
+              {mutasi.keterangan && <InfoRow label="Keterangan" value={mutasi.keterangan} />}
             </CardContent>
           </Card>
         )}

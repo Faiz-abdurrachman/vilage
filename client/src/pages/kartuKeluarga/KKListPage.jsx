@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Eye, Pencil, Trash2, Home } from 'lucide-react';
 import { useKKList, useDeleteKK } from '@/hooks/useKartuKeluarga';
@@ -13,6 +13,8 @@ function KKListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => { document.title = 'Kartu Keluarga | SIDESA'; }, []);
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');

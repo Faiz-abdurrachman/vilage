@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function NotFoundPage() {
+  useEffect(() => { document.title = '404 — Halaman Tidak Ditemukan | SIDESA'; }, []);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50">
       <div className="text-center px-4">

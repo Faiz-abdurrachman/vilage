@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, FileText, Clock, CheckCircle, XCircle, PenLine } from 'lucide-react';
 import { useSuratList } from '@/hooks/useSurat';
 import { useAuth } from '@/context/AuthContext';
 import PageHeader from '@/components/shared/PageHeader';
@@ -9,15 +9,23 @@ import StatusBadge from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatDate } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 const JENIS_LABEL = {
-  SKD: 'Surat Keterangan Domisili',
-  SKCK: 'Surat Kel. Catatan Kepolisian',
-  SKU: 'Surat Keterangan Usaha',
-  SKL: 'Surat Keterangan Lahir',
-  SKM: 'Surat Keterangan Meninggal',
-  SKTM: 'Surat Ket. Tidak Mampu',
+  SK_DOMISILI: 'SK Domisili',
+  SKTM: 'SK Tidak Mampu',
+  SK_USAHA: 'SK Usaha',
+  SK_KELAHIRAN: 'SK Kelahiran',
+  SK_KEMATIAN: 'SK Kematian',
+  SURAT_PENGANTAR: 'Surat Pengantar',
 };
+
+const STATUS_SUMMARY = [
+  { key: 'DRAFT',     label: 'Draft',     icon: PenLine,     color: 'text-slate-600 bg-slate-50 border-slate-200 hover:bg-slate-100' },
+  { key: 'MENUNGGU',  label: 'Menunggu',  icon: Clock,       color: 'text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100' },
+  { key: 'DISETUJUI', label: 'Disetujui', icon: CheckCircle, color: 'text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100' },
+  { key: 'DITOLAK',   label: 'Ditolak',   icon: XCircle,     color: 'text-red-600 bg-red-50 border-red-200 hover:bg-red-100' },
+];
 
 function SuratListPage() {
   const { user } = useAuth();
@@ -28,6 +36,8 @@ function SuratListPage() {
   const [jenisSurat, setJenisSurat] = useState('');
   const [statusSurat, setStatusSurat] = useState('');
 
+  useEffect(() => { document.title = 'Surat Keterangan | SIDESA'; }, []);
+
   const { data, isLoading } = useSuratList({
     page,
     limit: 10,
@@ -36,20 +46,31 @@ function SuratListPage() {
     status: statusSurat || undefined,
   });
 
+  // For status summary bar, fetch without filter
+  const { data: allData } = useSuratList({ limit: 1000 });
+  const statusCounts = (allData?.data || []).reduce((acc, s) => {
+    acc[s.status] = (acc[s.status] || 0) + 1;
+    return acc;
+  }, {});
+
   const columns = [
-    { key: 'no', label: 'No', render: (_, row) => (data?.data?.indexOf(row) + 1) + ((page - 1) * 10) },
-    { key: 'nomorSurat', label: 'Nomor Surat', render: (v) => v || <span className="text-slate-400 italic">Belum diterbitkan</span> },
+    {
+      key: 'nomorSurat', label: 'Nomor Surat',
+      render: (v) => v
+        ? <span className="font-mono text-xs font-medium text-slate-800">{v}</span>
+        : <span className="text-xs text-slate-300 italic">Belum diterbitkan</span>,
+    },
     {
       key: 'jenisSurat', label: 'Jenis Surat',
-      render: (v) => <span className="text-xs font-medium">{v}</span>,
+      render: (v) => <span className="text-xs font-medium text-slate-700">{JENIS_LABEL[v] || v}</span>,
     },
     {
       key: 'penduduk', label: 'Pemohon',
-      render: (v) => v?.namaLengkap || '-',
+      render: (v) => <span className="text-sm font-medium text-slate-800">{v?.namaLengkap || '—'}</span>,
     },
     {
-      key: 'tanggalPengajuan', label: 'Tanggal',
-      render: (v) => formatDate(v),
+      key: 'createdAt', label: 'Tanggal',
+      render: (v) => <span className="text-xs text-slate-500">{formatDate(v)}</span>,
     },
     {
       key: 'status', label: 'Status',
@@ -57,12 +78,17 @@ function SuratListPage() {
     },
   ];
 
+  const handleStatusClick = (key) => {
+    setStatusSurat(statusSurat === key ? '' : key);
+    setPage(1);
+  };
+
   return (
-    <div>
+    <div className="space-y-5">
       <PageHeader
-        title="Permohonan Surat"
+        title="Surat Keterangan"
         description="Kelola permohonan surat keterangan penduduk"
-        breadcrumbs={[{ label: 'Permohonan Surat' }]}
+        breadcrumbs={[{ label: 'Surat Keterangan' }]}
         actions={
           ['ADMIN', 'SEKDES', 'OPERATOR'].includes(user?.role) && (
             <Button size="sm" onClick={() => navigate('/surat/tambah')}>
@@ -73,33 +99,57 @@ function SuratListPage() {
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      {/* Status Summary Bar */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {STATUS_SUMMARY.map(({ key, label, icon: Icon, color }) => (
+          <button
+            key={key}
+            onClick={() => handleStatusClick(key)}
+            className={cn(
+              'flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition-all',
+              color,
+              statusSurat === key && 'ring-2 ring-offset-1 ring-blue-500'
+            )}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            <div>
+              <p className="text-lg font-bold leading-none" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                {statusCounts[key] || 0}
+              </p>
+              <p className="text-xs mt-0.5 opacity-75">{label}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
         <Select
-          value={jenisSurat}
+          value={jenisSurat || 'all'}
           onValueChange={(v) => { setJenisSurat(v === 'all' ? '' : v); setPage(1); }}
         >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Jenis Surat" />
+          <SelectTrigger className="w-44 h-9 text-sm">
+            <SelectValue placeholder="Semua Jenis" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Semua Jenis</SelectItem>
-            {Object.keys(JENIS_LABEL).map((k) => (
-              <SelectItem key={k} value={k}>{k}</SelectItem>
+            {Object.entries(JENIS_LABEL).map(([k, v]) => (
+              <SelectItem key={k} value={k}>{v}</SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <Select
-          value={statusSurat}
+          value={statusSurat || 'all'}
           onValueChange={(v) => { setStatusSurat(v === 'all' ? '' : v); setPage(1); }}
         >
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Status" />
+          <SelectTrigger className="w-36 h-9 text-sm">
+            <SelectValue placeholder="Semua Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Semua Status</SelectItem>
             <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="DIAJUKAN">Diajukan</SelectItem>
+            <SelectItem value="MENUNGGU">Menunggu</SelectItem>
             <SelectItem value="DISETUJUI">Disetujui</SelectItem>
             <SelectItem value="DITOLAK">Ditolak</SelectItem>
           </SelectContent>

@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 
 const routes = require('./routes');
+const publicRoutes = require('./routes/public.routes');
 const { errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -30,7 +31,10 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString(), service: 'SIDESA API' });
 });
 
-// Routes
+// Public routes (no auth required)
+app.use('/api/public', publicRoutes);
+
+// Protected routes
 app.use('/api', routes);
 
 // 404 handler

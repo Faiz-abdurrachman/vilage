@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Pencil, Trash2, UserMinus, Users } from 'lucide-react';
 import { useKKDetail, useRemoveAnggota } from '@/hooks/useKartuKeluarga';
@@ -38,6 +38,10 @@ function KKDetailPage() {
 
   const { data: kk, isLoading } = useKKDetail(id);
   const removeAnggotaMutation = useRemoveAnggota();
+
+  useEffect(() => {
+    document.title = kk ? `KK ${kk.noKk} | SIDESA` : 'Detail KK | SIDESA';
+  }, [kk]);
 
   if (isLoading) return <PageLoader />;
   if (!kk) return <div className="text-center py-16 text-slate-500">Data KK tidak ditemukan.</div>;

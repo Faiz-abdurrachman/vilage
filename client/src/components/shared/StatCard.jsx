@@ -1,58 +1,94 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { useEffect, useRef, useState } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const colorMap = {
-  blue: 'bg-blue-50 text-blue-700 border-blue-100',
-  green: 'bg-green-50 text-green-700 border-green-100',
-  orange: 'bg-orange-50 text-orange-700 border-orange-100',
-  purple: 'bg-purple-50 text-purple-700 border-purple-100',
-  red: 'bg-red-50 text-red-700 border-red-100',
-  yellow: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+  blue:   { bg: 'bg-blue-50',   text: 'text-blue-600',   border: 'border-blue-100',  accent: 'border-l-blue-500' },
+  green:  { bg: 'bg-emerald-50',text: 'text-emerald-600',border: 'border-emerald-100',accent: 'border-l-emerald-500' },
+  orange: { bg: 'bg-amber-50',  text: 'text-amber-600',  border: 'border-amber-100', accent: 'border-l-amber-500' },
+  purple: { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-100',accent: 'border-l-violet-500' },
+  red:    { bg: 'bg-red-50',    text: 'text-red-600',    border: 'border-red-100',   accent: 'border-l-red-500' },
+  yellow: { bg: 'bg-yellow-50', text: 'text-yellow-600', border: 'border-yellow-100',accent: 'border-l-yellow-500' },
 };
 
-function StatCard({ title, value, icon: Icon, description, trend, color = 'blue', isLoading }) {
+// Animated counter hook
+function useCountUp(target, duration = 800) {
+  const [count, setCount] = useState(0);
+  const startRef = useRef(null);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    if (target === undefined || target === null) return;
+    const start = performance.now();
+    const from = 0;
+    const to = Number(target) || 0;
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setCount(Math.round(from + (to - from) * ease));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+  }, [target, duration]);
+
+  return count;
+}
+
+function StatCard({ title, value, icon: Icon, description, sub, trend, color = 'blue', isLoading }) {
+  const count = useCountUp(value);
+  const c = colorMap[color] || colorMap.blue;
+
   if (isLoading) {
     return (
-      <Card className="animate-pulse">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <div className="h-4 w-24 bg-slate-200 rounded" />
-              <div className="h-8 w-16 bg-slate-200 rounded" />
-              <div className="h-3 w-32 bg-slate-200 rounded" />
-            </div>
-            <div className="h-12 w-12 bg-slate-200 rounded-xl" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="animate-pulse rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="flex items-start justify-between mb-4">
+          <div className="h-10 w-10 bg-slate-100 rounded-xl" />
+          <div className="h-4 w-20 bg-slate-100 rounded" />
+        </div>
+        <div className="h-9 w-24 bg-slate-100 rounded mb-2" />
+        <div className="h-3 w-32 bg-slate-100 rounded" />
+      </div>
     );
   }
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">{title}</p>
-            <p className="mt-1 text-3xl font-bold text-slate-900">{value?.toLocaleString('id-ID') ?? 0}</p>
-            {description && (
-              <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
-                {trend === 'up' && <TrendingUp className="h-3 w-3 text-green-500" />}
-                {trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
-                {trend === 'neutral' && <Minus className="h-3 w-3 text-slate-400" />}
-                <span>{description}</span>
-              </div>
-            )}
+    <div className={cn(
+      'stat-card rounded-2xl border bg-white p-6 shadow-sm border-l-[3px]',
+      c.border,
+      c.accent,
+    )}>
+      <div className="flex items-start justify-between mb-3">
+        <p className="text-sm font-medium text-slate-500">{title}</p>
+        {Icon && (
+          <div className={cn('rounded-xl p-2.5', c.bg, c.border, 'border')}>
+            <Icon className={cn('h-5 w-5', c.text)} />
           </div>
-          {Icon && (
-            <div className={cn('rounded-xl p-3 border', colorMap[color] || colorMap.blue)}>
-              <Icon className="h-6 w-6" />
-            </div>
-          )}
+        )}
+      </div>
+
+      <p className={cn('text-4xl font-bold counter-text', c.text)} style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+        {count.toLocaleString('id-ID')}
+      </p>
+
+      {description && (
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
+          {trend === 'up' && <TrendingUp className="h-3 w-3 text-emerald-500" />}
+          {trend === 'down' && <TrendingDown className="h-3 w-3 text-red-500" />}
+          {trend === 'neutral' && <Minus className="h-3 w-3 text-slate-400" />}
+          <span>{description}</span>
         </div>
-      </CardContent>
-    </Card>
+      )}
+
+      {sub && (
+        <p className="mt-1.5 text-xs text-slate-400">{sub}</p>
+      )}
+    </div>
   );
 }
 

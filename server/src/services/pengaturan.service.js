@@ -9,11 +9,16 @@ async function getProfilDesa() {
 }
 
 async function updateProfilDesa(data) {
+  // Strip undefined values
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== undefined)
+  );
+
   const profil = await prisma.desaProfil.findFirst();
   if (!profil) {
-    return prisma.desaProfil.create({ data });
+    return prisma.desaProfil.create({ data: cleanData });
   }
-  return prisma.desaProfil.update({ where: { id: profil.id }, data });
+  return prisma.desaProfil.update({ where: { id: profil.id }, data: cleanData });
 }
 
 module.exports = { getProfilDesa, updateProfilDesa };

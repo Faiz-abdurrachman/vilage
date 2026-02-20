@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Eye, Pencil, Trash2, Download } from 'lucide-react';
 import { usePendudukList, useDeletePenduduk } from '@/hooks/usePenduduk';
@@ -17,6 +17,8 @@ function PendudukListPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => { document.title = 'Data Penduduk | SIDESA'; }, []);
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');

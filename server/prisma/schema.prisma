@@ -122,15 +122,19 @@ model User {
 model DesaProfil {
   id            String  @id @default(cuid())
   namaDesa      String  @map("nama_desa")
-  kodeDesa      String  @map("kode_desa")
+  kodeDesa      String? @map("kode_desa")
   kecamatan     String
   kabupatenKota String  @map("kabupaten_kota")
   provinsi      String
-  alamatKantor  String  @map("alamat_kantor")
+  alamatKantor  String? @map("alamat_kantor")
   kodePos       String? @map("kode_pos")
   telepon       String?
-  namaKades     String  @map("nama_kades")
+  email         String?
+  namaKades     String? @map("nama_kades")
   nipKades      String? @map("nip_kades")
+  namaSekdes    String? @map("nama_sekdes")
+  visiDesa      String? @map("visi_desa")
+  misiDesa      String? @map("misi_desa")
   logoPath      String? @map("logo_path")
 
   @@map("desa_profil")

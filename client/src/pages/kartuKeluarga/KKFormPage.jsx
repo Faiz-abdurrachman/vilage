@@ -41,6 +41,10 @@ function KKFormPage() {
   const createMutation = useCreateKK();
   const updateMutation = useUpdateKK();
 
+  useEffect(() => {
+    document.title = isEdit ? 'Edit Kartu Keluarga | SIDESA' : 'Tambah KK | SIDESA';
+  }, [isEdit]);
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(isEdit ? schema.partial() : schema),
   });

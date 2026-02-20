@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, XCircle, Send, Download } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Send, Download, FileText } from 'lucide-react';
 import { useSuratDetail, useSubmitSurat, useApproveSurat, useRejectSurat } from '@/hooks/useSurat';
 import { useAuth } from '@/context/AuthContext';
 import PageHeader from '@/components/shared/PageHeader';
@@ -8,27 +8,29 @@ import StatusBadge from '@/components/shared/StatusBadge';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import { PageLoader } from '@/components/shared/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import api from '@/lib/axios';
 
 const JENIS_LABEL = {
-  SKD: 'Surat Keterangan Domisili',
-  SKCK: 'Surat Keterangan Catatan Kepolisian',
-  SKU: 'Surat Keterangan Usaha',
-  SKL: 'Surat Keterangan Lahir',
-  SKM: 'Surat Keterangan Meninggal',
+  SK_DOMISILI: 'Surat Keterangan Domisili',
   SKTM: 'Surat Keterangan Tidak Mampu',
+  SK_USAHA: 'Surat Keterangan Usaha',
+  SK_KELAHIRAN: 'Surat Keterangan Kelahiran',
+  SK_KEMATIAN: 'Surat Keterangan Kematian',
+  SURAT_PENGANTAR: 'Surat Pengantar',
 };
+
+const STATUS_ORDER = ['DRAFT', 'MENUNGGU', 'DISETUJUI'];
 
 function InfoRow({ label, value }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-1 py-2 border-b border-slate-100 last:border-0">
-      <span className="text-sm text-slate-500 sm:w-44 flex-shrink-0">{label}</span>
-      <span className="text-sm font-medium text-slate-800">{value || '-'}</span>
+    <div className="space-y-1">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+      <p className="text-sm font-medium text-slate-800">{value || '—'}</p>
     </div>
   );
 }
@@ -49,11 +51,15 @@ function SuratDetailPage() {
   const approveMutation = useApproveSurat();
   const rejectMutation = useRejectSurat();
 
+  useEffect(() => {
+    document.title = surat ? `${JENIS_LABEL[surat.jenisSurat] || 'Surat'} | SIDESA` : 'Detail Surat | SIDESA';
+  }, [surat]);
+
   if (isLoading) return <PageLoader />;
   if (!surat) return <div className="text-center py-16 text-slate-500">Data surat tidak ditemukan.</div>;
 
   const canSubmit = surat.status === 'DRAFT' && ['ADMIN', 'SEKDES', 'OPERATOR'].includes(user?.role);
-  const canApproveReject = surat.status === 'DIAJUKAN' && ['ADMIN', 'KADES'].includes(user?.role);
+  const canApproveReject = surat.status === 'MENUNGGU' && ['ADMIN', 'KADES'].includes(user?.role);
 
   const handleSubmit = async () => {
     try {
@@ -103,12 +109,27 @@ function SuratDetailPage() {
     }
   };
 
+  // Build timeline
+  const isDitolak = surat.status === 'DITOLAK';
+  const timelineSteps = isDitolak
+    ? [
+        { key: 'DRAFT', label: 'Draft', done: true },
+        { key: 'MENUNGGU', label: 'Diajukan', done: true },
+        { key: 'DITOLAK', label: 'Ditolak', done: true, isRejected: true },
+      ]
+    : STATUS_ORDER.map((s) => ({
+        key: s,
+        label: s === 'DRAFT' ? 'Draft' : s === 'MENUNGGU' ? 'Diajukan' : 'Disetujui',
+        done: STATUS_ORDER.indexOf(s) <= STATUS_ORDER.indexOf(surat.status),
+        isCurrent: s === surat.status,
+      }));
+
   return (
-    <div>
+    <div className="max-w-3xl space-y-5">
       <PageHeader
         title="Detail Surat"
         breadcrumbs={[
-          { label: 'Permohonan Surat', href: '/surat' },
+          { label: 'Surat Keterangan', href: '/surat' },
           { label: surat.nomorSurat || 'Detail' },
         ]}
         actions={
@@ -135,7 +156,7 @@ function SuratDetailPage() {
                   <XCircle className="h-4 w-4" />
                   Tolak
                 </Button>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => setShowApproveDialog(true)}>
+                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowApproveDialog(true)}>
                   <CheckCircle className="h-4 w-4" />
                   Setujui
                 </Button>
@@ -145,79 +166,117 @@ function SuratDetailPage() {
         }
       />
 
-      <div className="max-w-2xl space-y-4">
-        {/* Status Banner */}
-        <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
-          <span className="text-sm text-slate-600">Status:</span>
-          <StatusBadge status={surat.status} type="surat" />
-          {surat.nomorSurat && (
-            <span className="ml-auto font-mono text-sm font-semibold text-slate-800">{surat.nomorSurat}</span>
-          )}
+      {/* Timeline status */}
+      <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">Status Pengajuan</p>
+        <div className="flex items-center">
+          {timelineSteps.map((step, i) => (
+            <div key={step.key} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center">
+                <div className={cn(
+                  'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-colors',
+                  step.isRejected
+                    ? 'bg-red-100 text-red-600 ring-2 ring-red-200'
+                    : step.isCurrent
+                    ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                    : step.done
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-slate-100 text-slate-400'
+                )}>
+                  {step.isRejected ? '✕' : step.done ? '✓' : i + 1}
+                </div>
+                <p className={cn(
+                  'mt-1.5 text-[10px] font-medium text-center whitespace-nowrap',
+                  step.isRejected ? 'text-red-600' : step.done ? 'text-slate-700' : 'text-slate-400'
+                )}>
+                  {step.label}
+                </p>
+              </div>
+              {i < timelineSteps.length - 1 && (
+                <div className={cn(
+                  'mx-2 h-0.5 flex-1 mb-5',
+                  step.done ? 'bg-emerald-200' : 'bg-slate-100'
+                )} />
+              )}
+            </div>
+          ))}
         </div>
+        {surat.nomorSurat && (
+          <div className="mt-4 flex items-center gap-2 text-sm">
+            <FileText className="h-4 w-4 text-emerald-600" />
+            <span className="text-slate-500">Nomor Surat:</span>
+            <span className="font-mono font-semibold text-slate-800">{surat.nomorSurat}</span>
+          </div>
+        )}
+      </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Informasi Surat</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <InfoRow label="Jenis Surat" value={`${surat.jenisSurat} — ${JENIS_LABEL[surat.jenisSurat]}`} />
-            <InfoRow label="Nomor Surat" value={surat.nomorSurat} />
-            <InfoRow label="Tanggal Pengajuan" value={formatDate(surat.tanggalPengajuan)} />
-            <InfoRow label="Tanggal Terbit" value={formatDate(surat.tanggalTerbit)} />
-            <InfoRow label="Keperluan" value={surat.keperluan} />
-            <InfoRow label="Keterangan" value={surat.keterangan} />
-            {surat.rejectedReason && (
+      {/* Info surat */}
+      <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-700 mb-4" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+          Informasi Surat
+        </h3>
+        <div className="grid grid-cols-2 gap-5">
+          <InfoRow label="Jenis Surat" value={JENIS_LABEL[surat.jenisSurat] || surat.jenisSurat} />
+          <InfoRow label="Status" value={<StatusBadge status={surat.status} type="surat" />} />
+          <InfoRow label="Perihal" value={surat.perihal} />
+          <InfoRow label="Tanggal Dibuat" value={formatDate(surat.createdAt)} />
+          {surat.approvedAt && <InfoRow label="Tanggal Disetujui" value={formatDate(surat.approvedAt)} />}
+          {surat.rejectedReason && (
+            <div className="col-span-2">
               <InfoRow label="Alasan Penolakan" value={
                 <span className="text-red-600">{surat.rejectedReason}</span>
               } />
-            )}
-          </CardContent>
-        </Card>
-
-        {surat.penduduk && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Data Pemohon</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <InfoRow label="Nama Lengkap" value={
-                <Link to={`/penduduk/${surat.penduduk.id}`} className="text-blue-600 hover:underline">
-                  {surat.penduduk.namaLengkap}
-                </Link>
-              } />
-              <InfoRow label="NIK" value={surat.penduduk.nik} />
-              <InfoRow label="Alamat" value={surat.penduduk.alamat} />
-              <InfoRow label="RT / RW" value={`${surat.penduduk.rt} / ${surat.penduduk.rw}`} />
-              <InfoRow label="Pekerjaan" value={surat.penduduk.pekerjaan} />
-            </CardContent>
-          </Card>
-        )}
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Riwayat</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <InfoRow label="Dibuat Oleh" value={surat.createdBy?.namaLengkap} />
-            <InfoRow label="Dibuat Pada" value={formatDate(surat.createdAt)} />
-            {surat.approvedBy && (
-              <InfoRow label="Disetujui/Ditolak Oleh" value={surat.approvedBy?.namaLengkap} />
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Submit Dialog */}
+      {/* Data pemohon */}
+      {surat.penduduk && (
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-700 mb-4" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+            Data Pemohon
+          </h3>
+          <div className="grid grid-cols-2 gap-5">
+            <InfoRow label="Nama Lengkap" value={
+              <Link to={`/penduduk/${surat.penduduk.id}`} className="text-blue-600 hover:underline">
+                {surat.penduduk.namaLengkap}
+              </Link>
+            } />
+            <InfoRow label="NIK" value={
+              <span className="font-mono">{surat.penduduk.nik}</span>
+            } />
+            {surat.penduduk.alamat && (
+              <InfoRow label="Alamat" value={`RT ${surat.penduduk.rt}/${surat.penduduk.rw}, ${surat.penduduk.alamat}`} />
+            )}
+            <InfoRow label="Pekerjaan" value={surat.penduduk.pekerjaan} />
+          </div>
+        </div>
+      )}
+
+      {/* Riwayat */}
+      <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <h3 className="text-sm font-semibold text-slate-700 mb-4" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+          Riwayat
+        </h3>
+        <div className="grid grid-cols-2 gap-5">
+          <InfoRow label="Dibuat Oleh" value={surat.createdBy?.namaLengkap} />
+          <InfoRow label="Dibuat Pada" value={formatDate(surat.createdAt)} />
+          {surat.approvedBy && (
+            <InfoRow label="Disetujui/Ditolak Oleh" value={surat.approvedBy?.namaLengkap} />
+          )}
+        </div>
+      </div>
+
+      {/* Dialogs */}
       <ConfirmDialog
         open={showSubmitDialog}
         onClose={() => setShowSubmitDialog(false)}
         onConfirm={handleSubmit}
         title="Ajukan Surat"
-        description="Surat akan diajukan untuk persetujuan. Lanjutkan?"
+        description="Surat akan diajukan untuk persetujuan Kepala Desa. Lanjutkan?"
         isLoading={submitMutation.isPending}
       />
-
-      {/* Approve Dialog */}
       <ConfirmDialog
         open={showApproveDialog}
         onClose={() => setShowApproveDialog(false)}
@@ -229,23 +288,29 @@ function SuratDetailPage() {
 
       {/* Reject Dialog */}
       {showRejectDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-slate-900 mb-1">Tolak Surat</h3>
-            <p className="text-sm text-slate-500 mb-4">Berikan alasan penolakan.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-slate-900 mb-1" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              Tolak Surat
+            </h3>
+            <p className="text-sm text-slate-500 mb-5">Berikan alasan penolakan yang jelas.</p>
             <div className="space-y-2 mb-6">
-              <Label>Alasan Penolakan <span className="text-red-500">*</span></Label>
+              <Label className="text-sm font-medium text-slate-700">
+                Alasan Penolakan <span className="text-red-500">*</span>
+              </Label>
               <Textarea
                 placeholder="Tuliskan alasan penolakan..."
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
                 rows={3}
+                className="rounded-xl"
               />
             </div>
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setShowRejectDialog(false)}>Batal</Button>
+              <Button variant="outline" className="rounded-xl" onClick={() => setShowRejectDialog(false)}>Batal</Button>
               <Button
                 variant="destructive"
+                className="rounded-xl"
                 disabled={rejectMutation.isPending}
                 onClick={handleReject}
               >

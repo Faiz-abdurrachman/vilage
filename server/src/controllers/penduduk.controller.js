@@ -74,13 +74,18 @@ async function exportExcel(req, res, next) {
       { header: 'Status', key: 'statusPenduduk', width: 12 },
     ];
 
-    // Style header
-    sheet.getRow(1).font = { bold: true };
-    sheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
-    sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    // Style header row
+    const headerRow = sheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E40AF' } };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    headerRow.height = 30;
+
+    // Freeze header row
+    sheet.views = [{ state: 'frozen', ySplit: 1 }];
 
     pendudukList.forEach((p, index) => {
-      sheet.addRow({
+      const row = sheet.addRow({
         no: index + 1,
         nik: p.nik,
         namaLengkap: p.namaLengkap,
@@ -89,7 +94,7 @@ async function exportExcel(req, res, next) {
         umur: hitungUmur(p.tanggalLahir),
         jenisKelamin: p.jenisKelamin === 'LAKI_LAKI' ? 'Laki-laki' : 'Perempuan',
         agama: p.agama,
-        statusPerkawinan: p.statusPerkawinan.replace('_', ' '),
+        statusPerkawinan: p.statusPerkawinan.replace(/_/g, ' '),
         pekerjaan: p.pekerjaan,
         pendidikanTerakhir: p.pendidikanTerakhir,
         alamat: p.alamat,
@@ -99,6 +104,16 @@ async function exportExcel(req, res, next) {
         noKk: p.kartuKeluarga?.noKk || '-',
         statusPenduduk: p.statusPenduduk,
       });
+
+      // Alternating row color
+      if (index % 2 === 1) {
+        row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+      }
+      row.font = { size: 10 };
+
+      // Format NIK and noKK as text (prevent leading zero removal)
+      row.getCell('nik').numFmt = '@';
+      row.getCell('noKk').numFmt = '@';
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
