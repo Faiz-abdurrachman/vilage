@@ -21,9 +21,9 @@ function generateSuratPDF(surat, penduduk, desaProfil) {
     doc.fontSize(12)
       .text('KECAMATAN KOTAMOBAGU SELATAN', { align: 'center' });
     doc.fontSize(16)
-      .text(`DESA ${(desaProfil?.namaDesa || 'MOTOBOI BESAR').toUpperCase()}`, { align: 'center' });
+      .text(`DESA ${(desaProfil?.namaDesa || 'MOTOBOI KECIL').toUpperCase()}`, { align: 'center' });
     doc.fontSize(9).font('Helvetica')
-      .text(`${desaProfil?.alamatKantor || 'Jl. Trans Sulawesi, Desa Motoboi Kecil'}, Kode Pos ${desaProfil?.kodePos || '95716'}`, { align: 'center' });
+      .text(`${desaProfil?.alamatKantor || 'Jl. Trans Sulawesi, Desa Motoboi Kecil'}, Kode Pos ${desaProfil?.kodePos || '95717'}`, { align: 'center' });
     doc.text(`Telepon: ${desaProfil?.telepon || '(0434) 123456'}${desaProfil?.email ? '  Email: ' + desaProfil.email : ''}`, { align: 'center' });
 
     // Garis double

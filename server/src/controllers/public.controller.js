@@ -1,5 +1,8 @@
+const { PrismaClient } = require('@prisma/client');
 const dashboardService = require('../services/dashboard.service');
 const pengaturanService = require('../services/pengaturan.service');
+
+const prisma = new PrismaClient();
 
 async function getPublicStats(req, res, next) {
   try {
@@ -39,4 +42,39 @@ async function getPublicProfilDesa(req, res, next) {
   }
 }
 
-module.exports = { getPublicStats, getPublicProfilDesa };
+async function cekStatusSurat(req, res, next) {
+  try {
+    const { nomor } = req.params;
+    const surat = await prisma.surat.findFirst({
+      where: {
+        nomorSurat: nomor,
+        status: 'DISETUJUI',
+      },
+      select: {
+        nomorSurat: true,
+        jenisSurat: true,
+        status: true,
+        createdAt: true,
+        approvedAt: true,
+        penduduk: {
+          select: {
+            namaLengkap: true,
+          },
+        },
+      },
+    });
+
+    if (!surat) {
+      return res.status(404).json({
+        success: false,
+        message: 'Surat tidak ditemukan atau belum disetujui',
+      });
+    }
+
+    res.json({ success: true, data: surat });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getPublicStats, getPublicProfilDesa, cekStatusSurat };

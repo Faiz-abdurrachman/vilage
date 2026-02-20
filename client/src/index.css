@@ -191,6 +191,20 @@ html {
   opacity: 0;
 }
 
+/* Modal entrance animation */
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+.modal-enter {
+  animation: modalIn 0.2s ease-out forwards;
+}
+
+/* APBDes progress bar */
+.apbdes-bar {
+  transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 /* Print styles */
 @media print {
   .no-print {

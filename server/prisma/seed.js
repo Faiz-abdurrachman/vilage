@@ -17,7 +17,7 @@ async function main() {
       kabupatenKota: 'Kota Kotamobagu',
       provinsi: 'Sulawesi Utara',
       alamatKantor: 'Jl. Trans Sulawesi, Desa Motoboi Kecil',
-      kodePos: '95716',
+      kodePos: '95717',
       telepon: '(0434) 123456',
       namaKades: 'Ibrahim Mokodompit',
       nipKades: '19780315 200501 1 003',
@@ -69,18 +69,18 @@ async function main() {
   // KARTU KELUARGA (12 KK) - buat tanpa kepalaKeluargaId dulu
   // ==========================================
   const [kk1, kk2, kk3, kk4, kk5, kk6, kk7, kk8, kk9, kk10, kk11, kk12] = await Promise.all([
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301780001', alamat: 'Jl. Dusun 1 No. 1', rt: '001', rw: '001', dusun: 'Dusun 1', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301750002', alamat: 'Jl. Dusun 1 No. 5', rt: '001', rw: '001', dusun: 'Dusun 1', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301850003', alamat: 'Jl. Dusun 1 No. 10', rt: '002', rw: '001', dusun: 'Dusun 1', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301700004', alamat: 'Jl. Dusun 2 No. 3', rt: '001', rw: '001', dusun: 'Dusun 2', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301680005', alamat: 'Jl. Dusun 2 No. 7', rt: '001', rw: '001', dusun: 'Dusun 2', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301800006', alamat: 'Jl. Dusun 2 No. 15', rt: '002', rw: '001', dusun: 'Dusun 2', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301650007', alamat: 'Jl. Dusun 3 No. 2', rt: '001', rw: '002', dusun: 'Dusun 3', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301720008', alamat: 'Jl. Dusun 3 No. 8', rt: '001', rw: '002', dusun: 'Dusun 3', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301780009', alamat: 'Jl. Dusun 3 No. 12', rt: '002', rw: '002', dusun: 'Dusun 3', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301600010', alamat: 'Jl. Dusun 4 No. 1', rt: '001', rw: '002', dusun: 'Dusun 4', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301880011', alamat: 'Jl. Dusun 4 No. 6', rt: '001', rw: '002', dusun: 'Dusun 4', kodePos: '95716' } }),
-    prisma.kartuKeluarga.create({ data: { noKk: '7174012301850012', alamat: 'Jl. Dusun 4 No. 11', rt: '002', rw: '002', dusun: 'Dusun 4', kodePos: '95716' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301780001', alamat: 'Jl. Dusun 1 No. 1', rt: '001', rw: '001', dusun: 'Dusun 1', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301750002', alamat: 'Jl. Dusun 1 No. 5', rt: '001', rw: '001', dusun: 'Dusun 1', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301850003', alamat: 'Jl. Dusun 1 No. 10', rt: '002', rw: '001', dusun: 'Dusun 1', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301700004', alamat: 'Jl. Dusun 2 No. 3', rt: '001', rw: '001', dusun: 'Dusun 2', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301680005', alamat: 'Jl. Dusun 2 No. 7', rt: '001', rw: '001', dusun: 'Dusun 2', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301800006', alamat: 'Jl. Dusun 2 No. 15', rt: '002', rw: '001', dusun: 'Dusun 2', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301650007', alamat: 'Jl. Dusun 3 No. 2', rt: '001', rw: '002', dusun: 'Dusun 3', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301720008', alamat: 'Jl. Dusun 3 No. 8', rt: '001', rw: '002', dusun: 'Dusun 3', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301780009', alamat: 'Jl. Dusun 3 No. 12', rt: '002', rw: '002', dusun: 'Dusun 3', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301600010', alamat: 'Jl. Dusun 4 No. 1', rt: '001', rw: '002', dusun: 'Dusun 4', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301880011', alamat: 'Jl. Dusun 4 No. 6', rt: '001', rw: '002', dusun: 'Dusun 4', kodePos: '95717' } }),
+    prisma.kartuKeluarga.create({ data: { noKk: '7174012301850012', alamat: 'Jl. Dusun 4 No. 11', rt: '002', rw: '002', dusun: 'Dusun 4', kodePos: '95717' } }),
   ]);
   console.log('✅ Kartu Keluarga created (12 KK)');
 
