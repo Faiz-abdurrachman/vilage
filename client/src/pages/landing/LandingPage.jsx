@@ -9,8 +9,14 @@ import {
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList,
 } from 'recharts';
+import {
+  GENDER_COLORS as GC, AGAMA_COLORS as AC, DUSUN_COLORS as DC,
+  UMUR_LAKI, UMUR_WANITA,
+  GRID_STYLE, AXIS_STYLE, AXIS_Y_STYLE, ANIMATION_CONFIG, TOOLTIP_STYLE,
+  buildTooltipContent, BarValueLabel, HBarValueLabel,
+} from '@/lib/chartConfig';
 
 // ─── Hooks ───────────────────────────────────────────────────────────
 
@@ -1005,21 +1011,32 @@ function LandingPage() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <Reveal>
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-4">Komposisi Jenis Kelamin</h3>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <PieChart>
-                      <Pie data={genderData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
-                           paddingAngle={4} dataKey="value" animationBegin={0} animationDuration={1200}>
-                        {genderData.map((_, i) => <Cell key={i} fill={GENDER_COLORS[i]} strokeWidth={0} />)}
-                      </Pie>
-                      <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="flex justify-center gap-6 mt-2">
+                  <h3 className="text-sm font-semibold text-slate-700 mb-1">Komposisi Jenis Kelamin</h3>
+                  <p className="text-xs text-slate-400 mb-4">Berdasarkan data penduduk aktif</p>
+                  <div className="relative" style={{ height: 220 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={genderData} cx="50%" cy="50%" innerRadius={65} outerRadius={90}
+                             paddingAngle={3} dataKey="value" strokeWidth={0} {...ANIMATION_CONFIG}>
+                          {genderData.map((_, i) => <Cell key={i} fill={GENDER_COLORS[i]} />)}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} {...TOOLTIP_STYLE} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    {/* Center label */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-2xl font-bold text-blue-700" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                        {totalGender.toLocaleString('id-ID')}
+                      </span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">Total</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-center gap-6 mt-3">
                     {genderData.map((d, i) => (
-                      <div key={d.name} className="flex items-center gap-1.5 text-xs text-slate-600">
-                        <span className="h-2 w-2 rounded-full shrink-0" style={{ background: GENDER_COLORS[i] }} />
-                        {d.name} — <span className="font-semibold">{d.value}</span>
+                      <div key={d.name} className="flex items-center gap-1.5 text-xs">
+                        <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: GENDER_COLORS[i] }} />
+                        <span className="text-slate-500">{d.name}</span>
+                        <span className="font-bold text-slate-800">{d.value.toLocaleString('id-ID')}</span>
                         {totalGender > 0 && <span className="text-slate-400">({((d.value / totalGender) * 100).toFixed(0)}%)</span>}
                       </div>
                     ))}
@@ -1029,15 +1046,27 @@ function LandingPage() {
 
               <Reveal delay={100}>
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-4">Penduduk per Dusun</h3>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-1">Penduduk per Dusun</h3>
+                  <p className="text-xs text-slate-400 mb-4">Jumlah penduduk aktif per wilayah</p>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={stats.perDusun || []} margin={{ top: 4 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="dusun" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="jumlah" name="Penduduk" radius={[4, 4, 0, 0]} animationBegin={0} animationDuration={1200}>
-                        {(stats.perDusun || []).map((_, i) => <Cell key={i} fill={DUSUN_COLORS[i % DUSUN_COLORS.length]} />)}
+                    <BarChart data={stats.perDusun || []} margin={{ top: 18, right: 8, bottom: 4 }}>
+                      <defs>
+                        {DUSUN_COLORS.map((c, i) => (
+                          <linearGradient key={i} id={`gDusun${i}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={c} stopOpacity={1} />
+                            <stop offset="100%" stopColor={c} stopOpacity={0.7} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      <CartesianGrid {...GRID_STYLE} vertical={false} />
+                      <XAxis dataKey="dusun" {...AXIS_STYLE} />
+                      <YAxis {...AXIS_Y_STYLE} />
+                      <Tooltip content={<CustomTooltip />} {...TOOLTIP_STYLE} />
+                      <Bar dataKey="jumlah" name="Penduduk" radius={[6, 6, 0, 0]} {...ANIMATION_CONFIG}>
+                        {(stats.perDusun || []).map((_, i) => (
+                          <Cell key={i} fill={`url(#gDusun${i % DUSUN_COLORS.length})`} />
+                        ))}
+                        <LabelList dataKey="jumlah" content={<BarValueLabel />} />
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
@@ -1046,15 +1075,17 @@ function LandingPage() {
 
               <Reveal delay={150}>
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-4">Komposisi Agama</h3>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-1">Komposisi Agama</h3>
+                  <p className="text-xs text-slate-400 mb-4">Distribusi agama penduduk</p>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={(stats.perAgama || []).slice().sort((a, b) => b.jumlah - a.jumlah)} layout="vertical" margin={{ left: 8 }}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                      <XAxis type="number" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <YAxis dataKey="agama" type="category" tick={{ fontSize: 11, fill: '#64748b' }} width={60} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="jumlah" name="Penduduk" radius={[0, 4, 4, 0]} animationBegin={0} animationDuration={1200}>
+                    <BarChart data={(stats.perAgama || []).slice().sort((a, b) => b.jumlah - a.jumlah)} layout="vertical" margin={{ left: 8, right: 40, top: 4 }}>
+                      <CartesianGrid {...GRID_STYLE} horizontal={false} />
+                      <XAxis type="number" {...AXIS_STYLE} />
+                      <YAxis dataKey="agama" type="category" width={65} {...AXIS_Y_STYLE} />
+                      <Tooltip content={<CustomTooltip />} {...TOOLTIP_STYLE} />
+                      <Bar dataKey="jumlah" name="Penduduk" radius={[0, 4, 4, 0]} {...ANIMATION_CONFIG}>
                         {(stats.perAgama || []).map((_, i) => <Cell key={i} fill={AGAMA_COLORS[i % AGAMA_COLORS.length]} />)}
+                        <LabelList dataKey="jumlah" content={<HBarValueLabel />} />
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
@@ -1063,16 +1094,27 @@ function LandingPage() {
 
               <Reveal delay={200}>
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-semibold text-slate-700 mb-4">Kelompok Umur</h3>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-1">Kelompok Umur</h3>
+                  <p className="text-xs text-slate-400 mb-4">Distribusi usia berdasarkan jenis kelamin</p>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={stats.perKelompokUmur || []} margin={{ top: 4 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="kelompok" tick={{ fontSize: 8.5, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                      <Bar dataKey="lakiLaki"  name="Laki-laki" fill="#3b82f6" radius={[4,4,0,0]} animationBegin={0} animationDuration={1200} />
-                      <Bar dataKey="perempuan" name="Perempuan" fill="#f472b6" radius={[4,4,0,0]} animationBegin={0} animationDuration={1200} />
+                    <BarChart data={stats.perKelompokUmur || []} margin={{ top: 18, right: 8, bottom: 4 }} barGap={2}>
+                      <defs>
+                        <linearGradient id="gLandingLaki" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={UMUR_LAKI} stopOpacity={1} />
+                          <stop offset="100%" stopColor="#1d4ed8" stopOpacity={1} />
+                        </linearGradient>
+                        <linearGradient id="gLandingWanita" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={UMUR_WANITA} stopOpacity={1} />
+                          <stop offset="100%" stopColor="#db2777" stopOpacity={1} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid {...GRID_STYLE} vertical={false} />
+                      <XAxis dataKey="kelompok" {...AXIS_STYLE} tick={{ ...AXIS_STYLE.tick, fontSize: 8.5 }} />
+                      <YAxis {...AXIS_Y_STYLE} />
+                      <Tooltip content={<CustomTooltip />} {...TOOLTIP_STYLE} />
+                      <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11, color: '#64748b', fontFamily: 'Inter, sans-serif' }} />
+                      <Bar dataKey="lakiLaki"  name="Laki-laki" fill="url(#gLandingLaki)"   radius={[4,4,0,0]} {...ANIMATION_CONFIG} />
+                      <Bar dataKey="perempuan" name="Perempuan" fill="url(#gLandingWanita)" radius={[4,4,0,0]} {...ANIMATION_CONFIG} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -1130,18 +1172,28 @@ function LandingPage() {
             {/* Donut chart */}
             <Reveal>
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm h-full">
-                <h3 className="text-sm font-semibold text-slate-700 mb-4">Komposisi Anggaran</h3>
-                <ResponsiveContainer width="100%" height={240}>
-                  <PieChart>
-                    <Pie data={apbdesPieData} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
-                         paddingAngle={3} dataKey="value" animationBegin={0} animationDuration={1200}>
-                      {apbdesPieData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.fill} strokeWidth={0} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(v) => formatRupiah(v)} />
-                  </PieChart>
-                </ResponsiveContainer>
+                <h3 className="text-sm font-semibold text-slate-700 mb-1">Komposisi Anggaran</h3>
+                <p className="text-xs text-slate-400 mb-4">Alokasi per bidang kegiatan</p>
+                <div className="relative" style={{ height: 240 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={apbdesPieData} cx="50%" cy="50%" innerRadius={68} outerRadius={95}
+                           paddingAngle={3} dataKey="value" strokeWidth={0} {...ANIMATION_CONFIG}>
+                        {apbdesPieData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(v) => formatRupiah(v)} contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'Inter, sans-serif' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  {/* Center label */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Total</span>
+                    <span className="text-lg font-bold text-slate-900 mt-0.5" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                      {formatRupiah(APBDES.totalAnggaran)}
+                    </span>
+                  </div>
+                </div>
                 {/* Legend */}
                 <div className="mt-2 space-y-1.5">
                   {APBDES.kategori.map((k, i) => (
